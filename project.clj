@@ -10,6 +10,7 @@
                  [clojurewerkz/quartzite "2.0.0"]
                  [org.slf4j/slf4j-api "1.7.22"]
                  [org.slf4j/slf4j-log4j12 "1.7.22"]
+                 [org.postgresql/postgresql "9.4.1212.jre7"]
                  [ragtime "0.6.3"]]
   :plugins [[lein-postgres "0.1.1"]]
   :postgres {:port 12345
