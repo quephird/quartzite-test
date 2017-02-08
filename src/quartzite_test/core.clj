@@ -1,7 +1,19 @@
 (ns quartzite-test.core
   (:require [clojurewerkz.quartzite.conversion :as conversion]
             [clojurewerkz.quartzite.jobs :as jobs]
-            [clojurewerkz.quartzite.scheduler :as scheduler]))
+            [clojurewerkz.quartzite.scheduler :as scheduler]
+            [ragtime.jdbc :as jdbc]
+            [ragtime.repl :as repl]))
+
+(defn load-config []
+  {:datastore  (jdbc/sql-database "jdbc:postgresql://localhost:12345/postgres?user=postgres")
+   :migrations (jdbc/load-resources "migrations")})
+
+(defn migrate []
+  (repl/migrate (load-config)))
+
+(defn rollback []
+  (repl/rollback (load-config)))
 
 (jobs/defjob DurableJob [ctx]
   (let [job-data (conversion/from-job-data ctx)]
@@ -41,5 +53,5 @@
     ; This forces quartz to start the job before attempting to shut down.
     (while (not (scheduler/currently-executing-job? scheduler job-id)))
     (println "Shutting down quartz...")
-    (scheduler/shutdown scheduler true)
+;    (scheduler/shutdown scheduler true)
     (println "Exiting program...")))
