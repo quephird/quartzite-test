@@ -11,10 +11,10 @@ Investigation of this library led to having to research other things such as how
 
 ## Background
 
-Quartzite is built on top of Quartz, which requires a database schema and only provides a DDL script (one per RDBMS implementation) which has to be run outside of Leiningen and there is no other means provided to migrte it... hat is, until I tried out the Ragtime library. To get everything set up properly I needed to:
+Quartzite is built on top of Quartz, which requires a database schema and only provides a DDL script (one per RDBMS implementation) which has to be run outside of Leiningen and there is no other means provided to migrate it... that is, until I tried out the Ragtime library. To get everything set up properly I needed to:
 
 * Include the Ragtime dependency in `project.clj`.
-* Create a `resources\migrations` directory from the project root.
+* Create a `resources/migrations` directory from the project root.
 * Move the Quartz DDL script there and name it according to the convention required by Ragtime. (I also decided to split up the `create` and `down` statements into separate up and down scripts, `001-create-quartz-schema.up.sql` and `001-create-quartz-schema.down.sql`.)
 * Implement `migrate` and `rollback` functions in one of the namespaces in this project; I chose the only one used, `quartite-test.core`.
 * Set up task aliases in `profile.clj` to invoke those functions.
