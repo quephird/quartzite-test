@@ -48,9 +48,11 @@ In another terminal session, run the following:
 
 This will create the schema for Quartz, then run the demo.
 
+TODO: Add more details about the Quartzite API, querying the database after a job has run.
+
 ## Conclusions
 
-One of the things that was most disappointing was discovering that once jobs complete successfully, trigger records are deleted from the database. It is the trigger records which record the statuses of the running jobs, but even if jobs fail, the corresponding trigger records are deleted. Moreover, there is nothing in the `qrtz_job_details` table that denotates final state nor otherwise differentiates successfully completed from failed ones.
+One of the things that was most disappointing about Quartzite (and really Quartz) was discovering that once jobs complete successfully, trigger records are deleted from the database. It is the trigger records which record the statuses of running jobs, but even if jobs fail, the corresponding trigger records are deleted. Moreover, there is nothing in the `qrtz_job_details` table that denotates final state nor otherwise differentiates successfully completed from failed ones. That is a key feature that we need for another project and in a sense a dealbreaker for our using this library.
 
 ## Future plans
 
