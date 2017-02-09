@@ -2,7 +2,7 @@
 
 ## Description
 
-This started out as an experiment involving the Quartztite library to see if it fit the needs of another project. Specifically, we needed the following features:
+This started out as an experiment involving the Quartzite library to see if it fit the needs of another project. Specifically, we needed the following features:
 
 * A simple way to invoke jobs asychronously and on demand, not requiring any scheduling configuration such as cron.
 * A built-in way of storing job state in the database so that it could be queried later even if the application was restarted.
