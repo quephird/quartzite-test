@@ -52,18 +52,19 @@ This will create the schema for Quartz, then run the demo and will also block.
 
 At this point, you should be able to see various things echoed to the screen, including the parameters that were passed to the job:
 
-![](images/leiningen_run.png)
+![](./images/leiningen_run.png)
 
 You should also be able to open up a Postgres session and see that a record for the job should have been persisted:
 
-![](images/postgres_query.png)
+![](./images/postgres_query.png)
 
+Under the covers, even though a job can be submitted immediately without an explicit, predefined trigger, an "anonymous" one is created on the fly and managed in the database. (I discovered this in the beginning only because I had not used the correct DDL script and Quartz wasn't able to properly manage the database; more on this below.) I was able to do this using the `.triggerJob` method of the `Scheduler` class, which Quartzite curiously omits. Unfortunately, 1) there is nothing on the job details record that itself shows whether or not the job failed, and 2) the trigger that _was_ associated with the job where the status _is_ recorded is deleted immediately after the job runs or fails.
 
-TODO: Add more details about the Quartzite API, querying the database after a job has run.
+As an aside, one of the trickiest problems I encountered was some strange behavior where trigger records were _not_ being deleted from the database after a job was submitted, and the trigger remained in `WAITING` status. It turned out that I carelessly used the DDL script from Quartz 2.2.3 instead of the proper one for Quartzite, which depends on 2.1.7. There was a small change made to the schema between those two versions, and my using the newer one ultimately caused failures when trying to save records to the database. That problem was not immediately apparent because those errors were being swallowed due to insufficient logging set up which a coworker helped me resolve. That is why I left in the `slf4j` dependency in this project. Lesson learned: _always properly log and always look at log file for troubleshooting!!!_
 
 ## Conclusions
 
-One of the things that was most disappointing about Quartzite (and really Quartz) was discovering that once jobs complete successfully, trigger records are deleted from the database. It is the trigger records which record the statuses of running jobs, but even if jobs fail, the corresponding trigger records are deleted. Moreover, there is nothing in the `qrtz_job_details` table that denotates final state nor otherwise differentiates successfully completed from failed ones. That is a key feature that we need for another project and in a sense a dealbreaker for our using this library.
+One of the things that was most disappointing about Quartzite (and really Quartz) was discovering that once jobs complete successfully, trigger records are deleted from the database. It is the trigger records which record the statuses of running jobs, but even if jobs fail, the corresponding trigger records are deleted. Moreover, there is nothing in the `qrtz_job_details` table that denotates final state nor otherwise differentiates successfully completed jobs from failed ones. That is a key feature that we need for another project and in a sense a dealbreaker for our using this library.
 
 ## Future plans
 
