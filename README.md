@@ -7,11 +7,11 @@ This started out as an experiment involving the Quartztite library to see if it 
 * A simple way to invoke jobs asychronously and on demand, not requiring any scheduling configuration such as cron.
 * A built-in way of storing job state in the database so that it could be queried later even if the application was restarted.
 
-Investigation of this library led to having to research other things such as how to automate the running of database migrations, as well as needing to easily start up and shutdown a local database server. So the original scope of this little project widened into something surprisiingly more interesting.
+Investigation of this library led to having to research other things such as how to automate the running of database migrations, as well as needing to easily start up and shutdown a local database server. So the original scope of this little project widened into something surprisingly more interesting, and I felt warranted promotion to a project to be shared with others.
 
 ## Background
 
-Quartzite is built on top of Quartz, which requires a database schema and only provides a DDL script (one per RDBMS implementation) which has to be run outside of Leiningen... that is, until I tried out the Ragtime library. To get everything set up properly I needed to:
+Quartzite is built on top of Quartz, which requires a database schema and only provides a DDL script (one per RDBMS implementation) which has to be run outside of Leiningen and there is no other means provided to migrte it... hat is, until I tried out the Ragtime library. To get everything set up properly I needed to:
 
 * Include the Ragtime dependency in `project.clj`.
 * Create a `resources\migrations` directory from the project root.
@@ -23,14 +23,16 @@ I also wanted to simplify the setup of a local database, and it turns out that t
 
 * Set up the dependency in `:plugins` section of `project.clj`.
 * Configure the port on which the Postgres instance would listen.
+* Insure that the port specified in `project.clj` was consistent with that specified in the `quartzite.core` namespace for the Ragtime configuration. 
+* Craft the JDBC URL in that same configuration to include the `postgres` user as a query parameter. (As far as I can tell, the user cannot be configured to be anything else in the `lein-postgres` section of `project.clj` nor any other way in the Ragtime configuration. If I am wrong, I'm open to corrections.)
 
-Next, I needed to insure that the port specified in `project.clj` was consistent with that configuration specified in the `quartzite.core` namespace. I also needed to craft the JDBC URL in that same configuration to include the `postgres` user as a query parameter; as far as I can tell, the user cannot be configured to be anything else in `project.clj`.
+Once I finally got al that working, the actual thing I wanted to demonstrate was being able to author and run jobs easily in Quartzite. Specifically, I hoped that the APIs weren't too complicated and that I didn't need to go through too much ceremony to accomplish this. 
 
-
+Quartzite (and Quartz) supports running of jobs with and without so-called triggers. You can either create a job type and submit an instance of it to the scheduler, or if you desire you can create a trigger to be associated with that job type and run jobs on a scheduled basis. I only wanted to do the former, and it took me a little while for figure out how.
 
 ## Running the demo
 
-This project requires Leiningen; you can find instructions on how to install it here: http://www.leiningen.org/
+This project requires Leiningen; you can find instructions on how to install it [here](http://www.leiningen.org/).
 
 Download the project to a local directory:
 
@@ -46,7 +48,16 @@ In another terminal session, run the following:
 
     lein do migrate, run
 
-This will create the schema for Quartz, then run the demo.
+This will create the schema for Quartz, then run the demo and will also block. 
+
+At this point, you should be able to see various things echoed to the screen, including the parameters that were passed to the job:
+
+![](images/leiningen_run.png)
+
+You should also be able to open up a Postgres session and see that a record for the job should have been persisted:
+
+![](images/postgres_query.png)
+
 
 TODO: Add more details about the Quartzite API, querying the database after a job has run.
 
@@ -72,7 +83,7 @@ Quartz, [http://www.quartz-scheduler.org/](http://www.quartz-scheduler.org/)
 
 Ragtime, [https://github.com/weavejester/ragtime](https://github.com/weavejester/ragtime)
 
-lein-postgres, [https://github.com/whostolebenfrog/lein-postgres](https://github.com/whostolebenfrog/lein-postgres)
+`lein-postgres`, [https://github.com/whostolebenfrog/lein-postgres](https://github.com/whostolebenfrog/lein-postgres)
 
 ## License
 
