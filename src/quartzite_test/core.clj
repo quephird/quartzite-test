@@ -48,11 +48,4 @@
     (println "Adding the new job to the scheduler...")
     (scheduler/add-job scheduler job-detail)
     (println "Triggering the job...")
-    (.triggerJob scheduler job-key)
-
-    ; This forces quartz to start the job before attempting to shut down.
-    ;; (while (not (scheduler/currently-executing-job? scheduler job-id)))
-    ;; (println "Shutting down quartz...")
-    ;; (scheduler/shutdown scheduler true)
-    ;; (println "Exiting program...")
-    ))
+    (.triggerJob scheduler job-key)))

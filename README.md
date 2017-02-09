@@ -46,7 +46,7 @@ This will start up a local instance of Postgres without needing to explicitly do
 
 In another terminal session, run the following:
 
-    lein do migrate, run
+    lein do clean, migrate, run
 
 This will create the schema for Quartz, then run the demo and will also block. 
 
@@ -62,6 +62,11 @@ Under the covers, even though a job can be submitted immediately without an expl
 
 As an aside, one of the trickiest problems I encountered was some strange behavior where trigger records were _not_ being deleted from the database after a job was submitted, and the trigger remained in `WAITING` status. It turned out that I carelessly used the DDL script from Quartz 2.2.3 instead of the proper one for Quartzite, which depends on 2.1.7. There was a small change made to the schema between those two versions, and my using the newer one ultimately caused failures when trying to save records to the database. That problem was not immediately apparent because those errors were being swallowed due to insufficient logging set up which a coworker helped me resolve. That is why I left in the `slf4j` dependency in this project. Lesson learned: _always properly log errors and always look at log files for troubleshooting!!!_
 
+*UPDATE:* Thanks to @mdpendergrass' help, I was able to write the dynamic class loader (`quartzite-test.MyDynamicClassLoader`) entirely in Clojure, and now the project has no Java source code. To clarify, in order for Quartzite (actually it's Quartz) to find and load Clojure classes, you need to create a class which extends `` and implements ``; you can read the details [here](http://clojurequartz.info/articles/durable_quartz_stores.html#how_to_use_durable_job_stores_with_quartzite). Some important things to note:
+
+* Neither Clojure's `reify` nor `proxy` helps here as I needed to both extend one class and implement another interface as well as insure the compiled class is named such that the classloader can find it. `gen-class` was the only way to accomplish all of this.
+* The class needs to be nominated in the `:aot` section of `project.clj` to insure its compilation is completed _before_ the classloader tries to find it.
+
 ## Conclusions
 
 One of the things that was most disappointing about Quartzite (and really Quartz) was discovering that once jobs complete successfully, trigger records are deleted from the database. It is the trigger records which record the statuses of running jobs, but even if jobs fail, the corresponding trigger records are deleted. Moreover, there is nothing in the `qrtz_job_details` table that denotates final state nor otherwise differentiates successfully completed jobs from failed ones. That is a key feature that we need for another project and in a sense a dealbreaker for our using this library.
@@ -73,8 +78,6 @@ There are a few more things I'd like to try out for this project:
 * Be able to run `lein postgres` such that control returns to the invoking process and that subsequent Leiningen tasks can be chained and not requiring a user to spin up multiple terminal sessions.
 * Be able to run the scheduler such that control can return to the invoking process.
 * Be able to demonstrate querying the database, including figuring out how to query by parameter values.
-* Figure out how to write the dynamic class loader purely in Clojure.
-
 
 ## Useful links
 

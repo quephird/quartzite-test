@@ -3,9 +3,8 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :java-source-paths ["src/java"]
   :main quartzite-test.core
-  ;:aot [quartzite-test.MyDynamicClassLoader]
+  :aot [quartzite-test.MyDynamicClassLoader]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [clojurewerkz/quartzite "2.0.0"]
                  [org.slf4j/slf4j-api "1.7.22"]
