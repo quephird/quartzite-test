@@ -2,14 +2,16 @@
 
 ## Description
 
-This started out as an experiment involving the Quartztite library to see if it fit the needs of another projects. Specifically, we needed the following features:
+This started out as an experiment involving the Quartztite library to see if it fit the needs of another project. Specifically, we needed the following features:
 
-* A simple way to invoke jobs asychronously and immediately, not requiring any scheduling configuration such as cron.
+* A simple way to invoke jobs asychronously and on demand, not requiring any scheduling configuration such as cron.
 * A built-in way of storing job state in the database so that it could be queried later even if the application was restarted.
 
-Investigation of this library led to having to research other things such as how to automate the running of database migrations, as well as needing to easily start up and shutdown a local database server.
+Investigation of this library led to having to research other things such as how to automate the running of database migrations, as well as needing to easily start up and shutdown a local database server. So the original scope of this little project widened into something surprisiingly more interesting.
 
-Quartzite is built on top of Quartz, which requires a database schema and only provides DDL scripts which have to be run outside of Leiningen... that is, until I tried out the Ragtime library. To get everything set up properly I needed to:
+## Background
+
+Quartzite is built on top of Quartz, which requires a database schema and only provides a DDL script (one per RDBMS implementation) which has to be run outside of Leiningen... that is, until I tried out the Ragtime library. To get everything set up properly I needed to:
 
 * Include the Ragtime dependency in `project.clj`.
 * Create a `resources\migrations` directory from the project root.
@@ -17,11 +19,16 @@ Quartzite is built on top of Quartz, which requires a database schema and only p
 * Implement `migrate` and `rollback` functions in one of the namespaces in this project; I chose the only one used, `quartite-test.core`.
 * Set up task aliases in `profile.clj` to invoke those functions.
 
-I also wanted to facilitate the need for a local database, and it turns out that that problem has been solved too, namely the `lein-postgres` plugin. To get this working, I needed to:
+I also wanted to simplify the setup of a local database, and it turns out that that problem has been addressed too, namely the `lein-postgres` plugin. To get this working, I needed to:
 
-* 
+* Set up the dependency in `:plugins` section of `project.clj`.
+* Configure the port on which the Postgres instance would listen.
 
-## Getting it running
+Next, I needed to insure that the port specified in `project.clj` was consistent with that configuration specified in the `quartzite.core` namespace. I also needed to craft the JDBC URL in that same configuration to include the `postgres` user as a query parameter; as far as I can tell, the user cannot be configured to be anything else in `project.clj`.
+
+
+
+## Running the demo
 
 This project requires Leiningen; you can find instructions on how to install it here: http://www.leiningen.org/
 
@@ -49,13 +56,13 @@ Future possibilities
 
 ## Useful links
 
-Quartzite, https://github.com/quartzite
+Quartzite, [https://github.com/quartzite](https://github.com/quartzite)
 
-Quartz, 
+Quartz, [http://www.quartz-scheduler.org/](http://www.quartz-scheduler.org/)
 
-lein-postgres, 
+Ragtime, [https://github.com/weavejester/ragtime](https://github.com/weavejester/ragtime)
 
-Ragtime
+lein-postgres, [https://github.com/whostolebenfrog/lein-postgres](https://github.com/whostolebenfrog/lein-postgres)
 
 ## License
 
