@@ -40,18 +40,26 @@ In one session, move into that directory and run the following:
 
     lein postgres
 
-This will start up a local instance of Postgres without needing to explicitly download or install any external software.
-Running this task will block so you will need to start another session to continue
+This will start up a local instance of Postgres without needing to explicitly download or install any external software. Running this task will block so you will need to start another session to continue.
 
-Once in the Clojure REPL, issue the following:
+In another terminal session, run the following:
 
     lein do migrate, run
 
-Future possibilities
+This will create the schema for Quartz, then run the demo.
 
-* How to run `lein postgres` such that control returns to the invoking process and that subsequent Leiningen tasks can be chained and not requiring a user to spin up multiple terminal sessions.
+## Conclusions
+
+One of the things that was most disappointing was discovering that once jobs complete successfully, trigger records are deleted from the database. It is the trigger records which record the statuses of the running jobs, but even if jobs fail, the corresponding trigger records are deleted. Moreover, there is nothing in the `qrtz_job_details` table that denotates final state nor otherwise differentiates successfully completed from failed ones.
+
+## Future plans
+
+There are a few more things I'd like to try out for this project:
+
+* Be able to run `lein postgres` such that control returns to the invoking process and that subsequent Leiningen tasks can be chained and not requiring a user to spin up multiple terminal sessions.
 * Be able to run the scheduler such that control can return to the invoking process.
-* Being able to write the dynamic class loader purely in Clojure.
+* Be able to demonstrate querying the database, including figuring out how to query by parameter values.
+* Figure out how to write the dynamic class loader purely in Clojure.
 
 
 ## Useful links
